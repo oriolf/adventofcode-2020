@@ -1,9 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
 
@@ -13,24 +12,23 @@ type testcase struct {
 }
 
 func main() {
-	var cases []testcase
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		cases = append(cases, getCase(scanner.Text()))
-	}
+	util.Solve(solve(isOk1), solve(isOk2))
+}
 
-	var count int
-	for _, x := range cases {
-		if isOk2(x) {
-			count++
+func solve(okFunc func(testcase) bool) func([]string) interface{} {
+	return func(lines []string) interface{} {
+		var count int
+		for _, x := range lines {
+			if okFunc(getCase(x)) {
+				count++
+			}
 		}
-	}
 
-	fmt.Println(count)
+		return count
+	}
 }
 
 func getCase(s string) (out testcase) {
-	s = strings.TrimSpace(s)
 	s = strings.ReplaceAll(s, "-", " ")
 	s = strings.ReplaceAll(s, ":", "")
 	if _, err := fmt.Sscanf(s, "%d %d %s %s", &out.min, &out.max, &out.char, &out.value); err != nil {
