@@ -116,6 +116,21 @@ func presenceMap(a []string) map[string]struct{} {
 	return m
 }
 
+func ParseBoolMatrix(lines []string) (out [][]bool) {
+	for _, l := range lines {
+		var o []bool
+		for i := range l {
+			if l[i] == '#' {
+				o = append(o, true)
+			} else {
+				o = append(o, false)
+			}
+		}
+		out = append(out, o)
+	}
+	return out
+}
+
 func GenerateBoolMatrix(x, y int) (out [][]bool) {
 	for i := 0; i < y; i++ {
 		out = append(out, GenerateBoolRow(x))

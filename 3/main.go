@@ -1,46 +1,32 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
+	"github.com/oriolf/adventofcode2020/util"
 )
 
 func main() {
-	var forest [][]bool
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		forest = append(forest, parseLine(strings.TrimSpace(scanner.Text())))
-	}
+	util.Solve(solve1, solve2)
+}
 
-	// 	fmt.Println(countDescent(forest, 3, 1)) // first problem
+func solve1(lines []string) interface{} {
+	forest := util.ParseBoolMatrix(lines)
+	return countDescent(forest, 3, 1)
+}
 
+func solve2(lines []string) interface{} {
+	forest := util.ParseBoolMatrix(lines)
 	result := 1
-	slopes := [][]int{
+	for _, x := range [][]int{
 		{1, 1},
 		{3, 1},
 		{5, 1},
 		{7, 1},
 		{1, 2},
-	}
-
-	for _, x := range slopes {
+	} {
 		result *= countDescent(forest, x[0], x[1])
 	}
-	fmt.Println(result)
-}
 
-func parseLine(s string) (out []bool) {
-	for i := range s {
-		if s[i:i+1] == "#" {
-			out = append(out, true)
-		} else {
-			out = append(out, false)
-		}
-	}
-
-	return out
+	return result
 }
 
 func countDescent(forest [][]bool, right, down int) (count int) {
