@@ -1,46 +1,46 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
+	"github.com/oriolf/adventofcode2020/util"
 	"strconv"
 	"strings"
 )
 
-var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"} //, "cid"}
+func main() {
+	util.Solve(solve(validPassport1), solve(validPassport2))
+}
+
+func solve(validFunc func(map[string]string) bool) func([]string) interface{} {
+	return func(lines []string) interface{} {
+		var passports []map[string]string
+		var text string
+		for _, t := range lines {
+			if t == "" {
+				passports = append(passports, parsePassport(text))
+				text = ""
+			} else {
+				text += t + " "
+			}
+		}
+		passports = append(passports, parsePassport(text))
+
+		var count int
+		for _, x := range passports {
+			if validFunc(x) {
+				count++
+			}
+		}
+
+		return count
+	}
+}
+
+var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
 
 var fieldsValidation = map[string]func(string) bool{
-	"byr": func(s string) bool {
-		if len(s) != 4 {
-			return false
-		}
-		x, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		}
-		return x >= 1920 && x <= 2002
-	},
-	"iyr": func(s string) bool {
-		if len(s) != 4 {
-			return false
-		}
-		x, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		}
-		return x >= 2010 && x <= 2020
-	},
-	"eyr": func(s string) bool {
-		if len(s) != 4 {
-			return false
-		}
-		x, err := strconv.Atoi(s)
-		if err != nil {
-			return false
-		}
-		return x >= 2020 && x <= 2030
-	},
+	"byr": validateNumberBetween(1920, 2002),
+	"iyr": validateNumberBetween(2010, 2020),
+	"eyr": validateNumberBetween(2020, 2030),
 	"hgt": func(s string) bool {
 		if !strings.HasSuffix(s, "cm") && !strings.HasSuffix(s, "in") {
 			return false
@@ -65,14 +65,14 @@ var fieldsValidation = map[string]func(string) bool{
 			return false
 		}
 		for i := 1; i < 7; i++ {
-			if !stringInSlice(s[i:i+1], []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"}) {
+			if !util.StringInSlice(s[i:i+1], []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"}) {
 				return false
 			}
 		}
 		return true
 	},
 	"ecl": func(s string) bool {
-		return stringInSlice(s, []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"})
+		return util.StringInSlice(s, []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"})
 	},
 	"pid": func(s string) bool {
 		if len(s) != 9 {
@@ -83,37 +83,17 @@ var fieldsValidation = map[string]func(string) bool{
 	},
 }
 
-func stringInSlice(s string, l []string) bool {
-	for _, x := range l {
-		if x == s {
-			return true
+func validateNumberBetween(min, max int) func(string) bool {
+	return func(s string) bool {
+		if len(s) != 4 {
+			return false
 		}
-	}
-	return false
-}
-
-func main() {
-	var passports []map[string]string
-	var text string
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		if t := scanner.Text(); strings.TrimSpace(t) == "" {
-			passports = append(passports, parsePassport(text))
-			text = ""
-		} else {
-			text += t + " "
+		x, err := strconv.Atoi(s)
+		if err != nil {
+			return false
 		}
+		return x >= min && x <= max
 	}
-	passports = append(passports, parsePassport(text))
-
-	var count int
-	for _, x := range passports {
-		if validPassport2(x) {
-			count++
-		}
-	}
-
-	fmt.Println(count)
 }
 
 func parsePassport(s string) map[string]string {
@@ -121,9 +101,6 @@ func parsePassport(s string) map[string]string {
 	m := make(map[string]string)
 	for _, x := range fields {
 		parts := strings.Split(x, ":")
-		if len(parts) != 2 {
-			panic("wrong parts length")
-		}
 		m[parts[0]] = parts[1]
 	}
 
@@ -144,8 +121,7 @@ func validPassport2(m map[string]string) bool {
 		if v, ok := m[f]; !ok {
 			return false
 		} else {
-			fun := fieldsValidation[f]
-			if !fun(v) {
+			if fun := fieldsValidation[f]; !fun(v) {
 				return false
 			}
 		}
