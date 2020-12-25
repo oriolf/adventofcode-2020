@@ -36,6 +36,13 @@ func ParseInt(s string) int {
 	return x
 }
 
+func ParseInts(l []string) (out []int) {
+	for _, x := range l {
+		out = append(out, ParseInt(x))
+	}
+	return out
+}
+
 func Min(x, y int) int {
 	if x < y {
 		return x

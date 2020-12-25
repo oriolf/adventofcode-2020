@@ -1,30 +1,28 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
+	"github.com/oriolf/adventofcode2020/util"
 )
 
 func main() {
-	var numbers []int
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		if n, err := strconv.Atoi(scanner.Text()); err != nil {
-			panic("non int input")
-		} else {
-			numbers = append(numbers, n)
-		}
-	}
+	util.Solve(solve1, solve2)
+}
 
-	// 	fmt.Println(sumPair(numbers, 2020)) // first problem
+func solve1(lines []string) interface{} {
+	numbers := util.ParseInts(lines)
+	x, y := sumPair(numbers, 2020)
+	return x * y
+}
+
+func solve2(lines []string) interface{} {
+	numbers := util.ParseInts(lines)
 	for i, n := range numbers[1:] {
 		x, y := sumPair(numbers[:i], 2020-n)
 		if x+y == 2020-n {
-			fmt.Println(x * y * n)
+			return x * y * n
 		}
 	}
+	return 0
 }
 
 func sumPair(numbers []int, target int) (int, int) {
