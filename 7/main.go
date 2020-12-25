@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
+	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
 
@@ -13,32 +10,40 @@ type bag struct {
 	canContain map[string]int
 }
 
+var target = "shiny gold"
+
 func main() {
-	bags := map[string]bag{}
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		bag := parseBag(scanner.Text())
-		bags[bag.name] = bag
+	util.Solve(solve1, solve2)
+}
+
+func solve1(lines []string) interface{} {
+	bags := parseBags(lines)
+	var count int
+	for _, b := range bags {
+		if canContain(b, bags, target) {
+			count++
+		}
 	}
 
-	target := "shiny gold"
-	//	var count int
-	//	for _, b := range bags {
-	//		if canContain(b, bags, target) {
-	//			count++
-	//		}
-	//	}
-	//
-	//	fmt.Println(count)
+	return count
+}
 
-	fmt.Println(countBags(bags, target) - 1)
+func solve2(lines []string) interface{} {
+	bags := parseBags(lines)
+	return countBags(bags, target) - 1
+}
+
+func parseBags(lines []string) map[string]bag {
+	bags := map[string]bag{}
+	for _, l := range lines {
+		bag := parseBag(l)
+		bags[bag.name] = bag
+	}
+	return bags
 }
 
 func countBags(bags map[string]bag, target string) int {
-	b, ok := bags[target]
-	if !ok {
-		panic("no bag")
-	}
+	b := bags[target]
 	count := 1
 	for bb, m := range b.canContain {
 		count += m * countBags(bags, bb)
@@ -53,11 +58,7 @@ func parseBag(s string) bag {
 	fields = fields[4:]
 	if len(fields) > 3 {
 		for i := 1; i < len(fields); i += 4 {
-			n, err := strconv.Atoi(fields[i-1])
-			if err != nil {
-				panic("bad number")
-			}
-			l[strings.Join(fields[i:i+2], " ")] = n
+			l[strings.Join(fields[i:i+2], " ")] = util.ParseInt(fields[i-1])
 		}
 	}
 
