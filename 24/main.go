@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	util.Solve(solve1, solve2) // naive
+	util.Solve(solve1, solve2)
 }
 
 func solve1(lines []string) interface{} {
@@ -162,18 +162,10 @@ func generateGrid(allMovements [][][2]int) ([][]bool, int, int) {
 	var maxx, minx, maxy, miny int
 	for _, movements := range allMovements {
 		x, y := finalPoint(0, 0, movements)
-		if x < minx {
-			minx = x
-		}
-		if x > maxx {
-			maxx = x
-		}
-		if y < miny {
-			miny = y
-		}
-		if y > maxy {
-			maxy = y
-		}
+		minx = util.Min(minx, x)
+		maxx = util.Max(maxx, x)
+		miny = util.Min(miny, y)
+		maxy = util.Max(maxy, y)
 	}
 
 	return util.GenerateBoolMatrix(maxx-minx+1, maxy-miny+1), -minx, maxy
