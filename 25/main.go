@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	util.Solve(solve1, nil)
+	util.Solve(solve1, solve2)
 }
 
 func solve1(lines []string) interface{} {
@@ -14,6 +14,8 @@ func solve1(lines []string) interface{} {
 	doorLoop := getLoopSize(doorPublic)
 	return loop(cardPublic, doorLoop)
 }
+
+func solve2(lines []string) interface{} { return 0 }
 
 func getLoopSize(n int) int {
 	s := 1
