@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 )
 
@@ -12,27 +11,20 @@ func main() {
 func solve1(lines []string) interface{} {
 	player1, player2 := parsePlayers(lines)
 	player1, player2 = playGame(player1, player2)
-	winner := player1
-	if len(player2) > 0 {
-		winner = player2
-	}
-
-	return computeScore(winner)
+	return computeScore(winner(player1, player2))
 }
 
 func solve2(lines []string) interface{} {
 	player1, player2 := parsePlayers(lines)
-	player1, player2, winnerIndex := playGame2(player1, player2, nil)
-	winner := player1
-	if winnerIndex == 1 {
-		winner = player2
-	}
-
-	return computeScore(winner)
+	player1, player2, _ = playGame2(player1, player2, nil)
+	return computeScore(winner(player1, player2))
 }
 
-func print(args ...interface{}) {
-	fmt.Println(args...)
+func winner(p1, p2 []int) []int {
+	if len(p2) > 0 {
+		return p2
+	}
+	return p1
 }
 
 func parsePlayers(lines []string) (p1, p2 []int) {
@@ -84,8 +76,8 @@ func playGame2(p1, p2 []int, previous map[int][][]int) ([]int, []int, int) {
 		if alreadySeen(p1, p2, previous) {
 			return p1, p2, 0
 		}
-		previous[0] = append(previous[0], Copy(p1))
-		previous[1] = append(previous[1], Copy(p2))
+		previous[0] = append(previous[0], p1)
+		previous[1] = append(previous[1], p2)
 
 		x1, x2 := p1[0], p2[0]
 		p1, p2 = p1[1:], p2[1:]
@@ -118,10 +110,7 @@ func playGame2(p1, p2 []int, previous map[int][][]int) ([]int, []int, int) {
 }
 
 func Copy(in []int) (out []int) {
-	for _, x := range in {
-		out = append(out, x)
-	}
-	return out
+	return append([]int{}, in...)
 }
 
 func alreadySeen(p1, p2 []int, previous map[int][][]int) bool {
