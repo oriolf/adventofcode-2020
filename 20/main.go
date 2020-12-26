@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 	"math"
 	"strings"
@@ -34,14 +33,8 @@ func main() {
 	util.Solve(solve1, solve2)
 }
 
-func print(args ...interface{}) {
-	fmt.Println(args...)
-}
-
 func solve1(lines []string) interface{} {
-	tiles := parseTiles(lines)
-
-	corners := getCorners(tiles)
+	corners := getCorners(parseTiles(lines))
 
 	mult := 1
 	for _, c := range corners {
@@ -51,25 +44,11 @@ func solve1(lines []string) interface{} {
 	return mult
 }
 
-func getCorners(tiles []tile) (corners []tile) {
-	for _, t := range tiles {
-		count := countMatchingEdges(t, tiles)
-		switch count {
-		case 2:
-			corners = append(corners, t)
-		case 3, 4:
-		default:
-			panic(fmt.Sprintf("unexpected number of matches: %v", count))
-		}
-	}
-
-	return corners
-}
-
 func solve2(lines []string) interface{} {
 	image := reconstructImage(lines)
-	finalImage := getFinalImage(image)
-	monsterMap := getMonsterMap(finalImage)
+	finalImage := orientImage(image)
+	n := len(finalImage)
+	monsterMap := markMonsters(finalImage, util.GenerateBoolMatrix(n, n))
 
 	var count int
 	for i, row := range finalImage {
@@ -83,17 +62,19 @@ func solve2(lines []string) interface{} {
 	return count
 }
 
-func getMonsterMap(image [][]string) [][]bool {
-	var m [][]bool
-	for range image {
-		var r []bool
-		for range image {
-			r = append(r, false)
+func getCorners(tiles []tile) (corners []tile) {
+	for _, t := range tiles {
+		count := countMatchingEdges(t, tiles)
+		switch count {
+		case 2:
+			corners = append(corners, t)
+		case 3, 4:
+		default:
+			panic("unexpected number of matches")
 		}
-		m = append(m, r)
 	}
 
-	return markMonsters(image, m)
+	return corners
 }
 
 func markMonsters(image [][]string, m [][]bool) [][]bool {
@@ -144,7 +125,7 @@ func hasMonsterAt(image [][]string, i, j int) bool {
 	return true
 }
 
-func getFinalImage(image [][]tile) (out [][]string) {
+func orientImage(image [][]tile) (out [][]string) {
 	for _, row := range image {
 		out = append(out, getRowPixels(row)...)
 	}
@@ -186,31 +167,24 @@ LOOP:
 	for len(tiles) > 0 {
 		for _, t := range tiles {
 			if goingRight && matchEdge(lastAdded.right(), t.edges()) {
-				t = convertMatchLeft(lastAdded.right(), t)
-				lastAdded = t
-				row = append(row, t)
+				lastAdded = convertMatchLeft(lastAdded.right(), t)
+				row = append(row, lastAdded)
+				tiles = removeTile(tiles, lastAdded)
 				if len(row) == width {
 					goingRight = false
 					image = append(image, row)
 					lastAdded = row[0]
 					row = nil
 				}
-
-				tiles = removeTile(tiles, t)
 				continue LOOP
 			} else if !goingRight && matchEdge(lastAdded.bottom(), t.edges()) {
-				t = convertMatchTop(lastAdded.bottom(), t)
-				lastAdded = t
-				row = []tile{t}
+				lastAdded = convertMatchTop(lastAdded.bottom(), t)
+				row = []tile{lastAdded}
+				tiles = removeTile(tiles, lastAdded)
 				goingRight = true
-				tiles = removeTile(tiles, t)
 				continue LOOP
-			} else {
-				continue
 			}
 		}
-
-		panic("could not add any tile!")
 	}
 
 	return image
@@ -305,17 +279,6 @@ func rotateMatrix(in [][]string) (out [][]string) {
 		out = append(out, r)
 	}
 
-	return out
-}
-
-func imageIDs(image [][]tile) (out [][]int) {
-	for _, row := range image {
-		var r []int
-		for _, t := range row {
-			r = append(r, t.id)
-		}
-		out = append(out, r)
-	}
 	return out
 }
 
