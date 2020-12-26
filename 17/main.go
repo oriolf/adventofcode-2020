@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
@@ -52,19 +51,6 @@ func getInitialSpace(lines []string) [][][]string {
 		space = append(space, newPlane(n))
 	}
 	return space
-}
-
-func printSpace(space [][][]string) {
-	for i, plane := range space {
-		fmt.Println("z = ", i)
-		printPlane(plane)
-	}
-}
-
-func printPlane(plane [][]string) {
-	for _, line := range plane {
-		fmt.Println(strings.Join(line, ""))
-	}
 }
 
 func performCycle(space [][][]string) [][][]string {
@@ -198,27 +184,6 @@ func updateActive(current string, count int) string {
 	}
 
 	return "."
-}
-
-func hyperSpaceDimensions(space [][][][]string) (int, int, int, int) {
-	return len(space), len(space[0]), len(space[0][0]), len(space[0][0][0])
-}
-
-func printHyperDimensions(hyper [][][][]string) {
-	fmt.Println(len(hyper))
-	for _, space := range hyper {
-		fmt.Println("  ", len(space))
-		for _, plane := range space {
-			fmt.Println("    ", len(plane))
-			for _, line := range plane {
-				fmt.Println("      ", len(line))
-			}
-		}
-	}
-}
-
-func spaceDimensions(space [][][]string) (int, int, int) {
-	return len(space), len(space[0]), len(space[0][0])
 }
 
 func expandHyperSpace(hyperSpace [][][][]string) [][][][]string {
