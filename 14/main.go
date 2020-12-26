@@ -10,7 +10,7 @@ func main() {
 	util.Solve(solve(update1), solve(update2))
 }
 
-func solve(updateFunc func(map[int]int, []string, string) map[int]int) func(lines []string) interface{} {
+func solve(updateFunc func(map[int]int, []string, int, int) map[int]int) func(lines []string) interface{} {
 	return func(lines []string) interface{} {
 		mem := make(map[int]int)
 		mask := []string{}
@@ -18,7 +18,11 @@ func solve(updateFunc func(map[int]int, []string, string) map[int]int) func(line
 			if strings.HasPrefix(l, "mask") {
 				mask = parseMask(l)
 			} else {
-				mem = updateFunc(mem, mask, l)
+				var k, v int
+				if _, err := fmt.Sscanf(l, "mem[%d] = %d", &k, &v); err != nil {
+					panic("bad mem assignment")
+				}
+				mem = updateFunc(mem, mask, k, v)
 			}
 		}
 
@@ -31,21 +35,17 @@ func solve(updateFunc func(map[int]int, []string, string) map[int]int) func(line
 	}
 }
 
-func update1(mem map[int]int, mask []string, l string) map[int]int {
-	var k, v int
-	if _, err := fmt.Sscanf(l, "mem[%d] = %d", &k, &v); err != nil {
-		panic("bad mem assignment")
-	}
-	mem[k] = applyMask(mask, v)
-	return mem
-}
-
 func parseMask(s string) (out []string) {
 	for _, x := range strings.Split(s, "") {
 		out = append([]string{x}, out...)
 	}
 
 	return out
+}
+
+func update1(mem map[int]int, mask []string, k, v int) map[int]int {
+	mem[k] = applyMask(mask, v)
+	return mem
 }
 
 func applyMask(mask []string, value int) (out int) {
@@ -64,12 +64,7 @@ func applyMask(mask []string, value int) (out int) {
 	return out
 }
 
-func update2(mem map[int]int, mask []string, l string) map[int]int {
-	var k, v int
-	if _, err := fmt.Sscanf(l, "mem[%d] = %d", &k, &v); err != nil {
-		panic("bad mem assignment")
-	}
-
+func update2(mem map[int]int, mask []string, k, v int) map[int]int {
 	for _, addr := range computeAddresses(k, mask) {
 		mem[addr] = v
 	}
