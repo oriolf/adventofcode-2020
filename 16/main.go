@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
-	"sort"
 	"strings"
 )
 
@@ -62,22 +60,10 @@ func getFieldsRuleName(tickets [][]int, rules []rule) map[int]string {
 
 	out := make(map[int]string)
 	for k, v := range m {
-		if len(v) != 1 {
-			panic("wrong rules length")
-		}
 		out[k] = v[0].name
 	}
 
 	return out
-}
-
-func printRulesList(l []rule) string {
-	var s []string
-	for _, x := range l {
-		s = append(s, x.name)
-	}
-	sort.Strings(s)
-	return strings.Join(s, ", ") + fmt.Sprintf("(%d)", len(l))
 }
 
 func multipleRules(m map[int][]rule) bool {
