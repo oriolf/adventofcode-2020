@@ -1,7 +1,6 @@
 package main
 
 import (
-	//	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
@@ -16,20 +15,13 @@ func main() {
 
 func solve1(lines []string) interface{} {
 	t := util.ParseInt(lines[0])
-	var buses []int
-	for _, x := range strings.Split(lines[1], ",") {
-		if x == "x" {
-			continue
-		}
-		buses = append(buses, util.ParseInt(x))
-	}
-
+	buses := parseBuses(lines[1])
 	min, minBus := int(1e10), -1
 	for _, bus := range buses {
-		x := bus - (t % bus)
+		x := bus.value - (t % bus.value)
 		if x < min {
 			min = x
-			minBus = bus
+			minBus = bus.value
 		}
 	}
 
@@ -37,13 +29,7 @@ func solve1(lines []string) interface{} {
 }
 
 func solve2(lines []string) interface{} {
-	var buses []bus
-	for i, x := range strings.Split(lines[1], ",") {
-		if x == "x" {
-			continue
-		}
-		buses = append(buses, bus{value: util.ParseInt(x), offset: i})
-	}
+	buses := parseBuses(lines[1])
 
 	minimum := buses[0].value
 	delta := minimum
@@ -52,6 +38,16 @@ func solve2(lines []string) interface{} {
 	}
 
 	return minimum
+}
+
+func parseBuses(l string) (buses []bus) {
+	for i, x := range strings.Split(l, ",") {
+		if x == "x" {
+			continue
+		}
+		buses = append(buses, bus{value: util.ParseInt(x), offset: i})
+	}
+	return buses
 }
 
 func findLowest(b bus, minimum, delta int) (int, int) {
