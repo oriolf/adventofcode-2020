@@ -11,34 +11,30 @@ type rule struct {
 }
 
 func main() {
-	util.Solve(solve1, solve2)
+	util.Solve(solve(rules1), solve(rules2))
 }
 
-func solve1(lines []string) interface{} {
-	rules, inputs := parseInput(lines)
-	var count int
-	for _, x := range inputs {
-		if s, ok := matches(x, 0, rules); ok && s == "" {
-			count++
+func solve(rulesFunc func(map[int]rule) map[int]rule) func([]string) interface{} {
+	return func(lines []string) interface{} {
+		rules, inputs := parseInput(lines)
+		rules = rulesFunc(rules)
+
+		var count int
+		for _, x := range inputs {
+			if ss := matches([]string{x}, 0, rules); containsEmptyString(ss) {
+				count++
+			}
 		}
-	}
 
-	return count
+		return count
+	}
 }
 
-func solve2(lines []string) interface{} {
-	rules, inputs := parseInput(lines)
+func rules1(rules map[int]rule) map[int]rule { return rules }
+func rules2(rules map[int]rule) map[int]rule {
 	rules[8] = rule{subrules: [][]int{[]int{42}, []int{42, 8}}}
 	rules[11] = rule{subrules: [][]int{[]int{42, 31}, []int{42, 11, 31}}}
-
-	var count int
-	for _, x := range inputs {
-		if ss := matches2([]string{x}, 0, rules); containsEmptyString(ss) {
-			count++
-		}
-	}
-
-	return count
+	return rules
 }
 
 func containsEmptyString(l []string) bool {
@@ -76,53 +72,14 @@ func parseRule(s string) (int, rule) {
 	var r rule
 	parts = strings.Split(s, "|")
 	for _, x := range parts {
-		r.subrules = append(r.subrules, parseSubrules(strings.TrimSpace(x)))
+		l := strings.Split(strings.TrimSpace(x), " ")
+		r.subrules = append(r.subrules, util.ParseInts(l))
 	}
 
 	return index, r
 }
 
-func parseSubrules(s string) (out []int) {
-	for _, x := range strings.Split(s, " ") {
-		out = append(out, util.ParseInt(x))
-	}
-	return out
-}
-
-func matches(s string, index int, rules map[int]rule) (string, bool) {
-	r := rules[index]
-	if r.literal != "" {
-		if strings.HasPrefix(s, r.literal) {
-			return s[len(r.literal):], true
-		}
-		return s, false
-	}
-
-	for _, l := range r.subrules {
-		x, ok := matchesSubrules(s, l, rules)
-		if ok {
-			return x, true
-		}
-	}
-
-	return s, false
-}
-
-func matchesSubrules(s string, l []int, rules map[int]rule) (string, bool) {
-	x := s
-	ok := true
-
-	for _, i := range l {
-		x, ok = matches(x, i, rules)
-		if !ok {
-			return s, false
-		}
-	}
-
-	return x, true
-}
-
-func matches2(s []string, index int, rules map[int]rule) []string {
+func matches(s []string, index int, rules map[int]rule) []string {
 	r := rules[index]
 	if len(s) == 0 {
 		return nil
@@ -139,15 +96,15 @@ func matches2(s []string, index int, rules map[int]rule) []string {
 	}
 
 	for _, l := range r.subrules {
-		out = append(out, matchesSubrules2(s, l, rules)...)
+		out = append(out, matchesSubrules(s, l, rules)...)
 	}
 
 	return out
 }
 
-func matchesSubrules2(s []string, l []int, rules map[int]rule) []string {
+func matchesSubrules(s []string, l []int, rules map[int]rule) []string {
 	for _, i := range l {
-		s = matches2(s, i, rules)
+		s = matches(s, i, rules)
 	}
 
 	return s
