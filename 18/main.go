@@ -13,35 +13,18 @@ type expression struct {
 }
 
 func main() {
-	util.Solve(solve1, solve2)
+	util.Solve(solve(evaluate1), solve(evaluate2))
 }
 
-func solve1(lines []string) interface{} {
-	var results []int
-	for _, l := range lines {
-		result := evaluateExpression(l)
-		results = append(results, result)
+func solve(evalFunc func([]expression) int) func([]string) interface{} {
+	return func(lines []string) interface{} {
+		var results []int
+		for _, l := range lines {
+			result := evalFunc(parseExpression(l, nil))
+			results = append(results, result)
+		}
+		return util.Sum(results)
 	}
-	return util.Sum(results)
-}
-
-func evaluateExpression(s string) int {
-	l := parseExpression(s, nil)
-	return evaluate(l)
-}
-
-func solve2(lines []string) interface{} {
-	var results []int
-	for _, l := range lines {
-		result := evaluateExpression2(l)
-		results = append(results, result)
-	}
-	return util.Sum(results)
-}
-
-func evaluateExpression2(s string) int {
-	l := parseExpression(s, nil)
-	return evaluate2(l)
 }
 
 func parseExpression(s string, expressions []expression) []expression {
@@ -97,7 +80,7 @@ func parseExpression(s string, expressions []expression) []expression {
 	return append(expressions, expression{value: util.ParseInt(number)})
 }
 
-func evaluate(list []expression) int {
+func evaluate1(list []expression) int {
 	val := evaluateSingle(list[0])
 
 	for i, e := range list[:len(list)-1] {
@@ -117,7 +100,7 @@ func evaluateSingle(e expression) int {
 	if len(e.expressions) == 0 {
 		return e.value
 	}
-	return evaluate(e.expressions)
+	return evaluate1(e.expressions)
 }
 
 func evaluateSingle2(e expression) int {
