@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 	"sort"
 	"strings"
@@ -19,10 +18,6 @@ type ingredient struct {
 
 func main() {
 	util.Solve(solve1, solve2)
-}
-
-func print(args ...interface{}) {
-	fmt.Println(args...)
 }
 
 func solve1(lines []string) interface{} {
@@ -60,14 +55,30 @@ func solve2(lines []string) interface{} {
 	for _, ing := range ingredients {
 		l = append(l, ing.name)
 	}
+
 	return strings.Join(l, ",")
+}
+
+func getNonAllergensIngredients(meals []meal, allergensMap map[string][]string) map[string]struct{} {
+	nonAllergens := make(map[string]struct{})
+	for _, m := range meals {
+	LOOP:
+		for _, ing := range m.ingredients {
+			for _, ingredients := range allergensMap {
+				if util.StringInSlice(ing, ingredients) {
+					continue LOOP
+				}
+			}
+			nonAllergens[ing] = struct{}{}
+		}
+	}
+
+	return nonAllergens
 }
 
 func allAllergensKnown(m map[string][]string) bool {
 	for _, v := range m {
-		if len(v) == 0 {
-			panic("deleted unexpected value")
-		} else if len(v) > 1 {
+		if len(v) > 1 {
 			return false
 		}
 	}
@@ -121,21 +132,4 @@ func parseMeal(l string) meal {
 	ingredients := parts[0]
 	allergens := strings.Trim(parts[1], ")")
 	return meal{ingredients: strings.Fields(ingredients), allergens: strings.Split(allergens, ", ")}
-}
-
-func getNonAllergensIngredients(meals []meal, allergensMap map[string][]string) map[string]struct{} {
-	nonAllergens := make(map[string]struct{})
-	for _, m := range meals {
-	LOOP:
-		for _, ing := range m.ingredients {
-			for _, ingredients := range allergensMap {
-				if util.StringInSlice(ing, ingredients) {
-					continue LOOP
-				}
-			}
-			nonAllergens[ing] = struct{}{}
-		}
-	}
-
-	return nonAllergens
 }
