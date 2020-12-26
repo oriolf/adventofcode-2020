@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 )
 
 func main() {
-	lines := util.ScanLines()
-	//	fmt.Println(solve1(lines))
-	fmt.Println(solve2(lines))
+	util.Solve(solve1, solve2)
 }
 
-func solve1(lines []string) int {
+func solve1(lines []string) interface{} {
 	position, lastDirection := [2]int{0, 0}, "E"
 	for _, l := range lines {
 		direction, value := l[0:1], util.ParseInt(l[1:])
@@ -21,7 +18,7 @@ func solve1(lines []string) int {
 	return util.Abs(position[0]) + util.Abs(position[1])
 }
 
-func solve2(lines []string) int {
+func solve2(lines []string) interface{} {
 	waypoint, position := [2]int{10, 1}, [2]int{0, 0}
 	for _, l := range lines {
 		direction, value := l[0:1], util.ParseInt(l[1:])
