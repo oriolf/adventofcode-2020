@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
+	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
 
@@ -14,21 +11,34 @@ type instruction struct {
 }
 
 func main() {
-	var program []instruction
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
-		program = append(program, parseInstruction(text))
-	}
+	util.Solve(solve1, solve2)
+}
+
+func solve1(lines []string) interface{} {
+	program := parseProgram(lines)
+	acc, _ := executeProgram(program)
+	return acc
+}
+
+func solve2(lines []string) interface{} {
+	program := parseProgram(lines)
 
 	for index := 0; index < len(program); index++ {
 		if acc, ok := executeProgram(modifyProgram(program, index)); ok {
-			fmt.Println(acc)
-			os.Exit(0)
+			return acc
 		}
 	}
 
-	panic("no index works!")
+	return 0
+}
+
+func parseProgram(lines []string) (program []instruction) {
+	for _, l := range lines {
+		p := strings.Fields(l)
+		program = append(program, instruction{name: p[0], value: util.ParseInt(p[1])})
+	}
+
+	return program
 }
 
 func modifyProgram(in []instruction, index int) (out []instruction) {
@@ -43,18 +53,6 @@ func modifyProgram(in []instruction, index int) (out []instruction) {
 		out = append(out, x)
 	}
 	return out
-}
-
-func parseInstruction(s string) instruction {
-	parts := strings.Fields(s)
-	if len(parts) != 2 {
-		panic("wrong instruction")
-	}
-	x, err := strconv.Atoi(parts[1])
-	if err != nil {
-		panic("wrong instruction value")
-	}
-	return instruction{name: parts[0], value: x}
 }
 
 func executeProgram(program []instruction) (acc int, ok bool) {
