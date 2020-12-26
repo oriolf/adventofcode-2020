@@ -1,35 +1,39 @@
 package main
 
 import (
-	"fmt"
 	"github.com/oriolf/adventofcode2020/util"
 	"strings"
 )
 
 func main() {
-	var seats [][]string
-	lines := util.ScanLines()
-	for _, l := range lines {
-		seats = append(seats, strings.Split(l, ""))
-	}
-
-	changed := true
-	for changed {
-		seats, changed = applyChanges(seats)
-	}
-
-	fmt.Println(occupied(seats))
+	util.Solve(solve(countOccupiedAround1, 4), solve(countOccupiedAround2, 5))
 }
 
-func applyChanges(seats [][]string) ([][]string, bool) {
+func solve(countFunc func([][]string, int, int) int, c int) func([]string) interface{} {
+	return func(lines []string) interface{} {
+		var seats [][]string
+		for _, l := range lines {
+			seats = append(seats, strings.Split(l, ""))
+		}
+
+		changed := true
+		for changed {
+			seats, changed = applyChanges(seats, countFunc, c)
+		}
+
+		return occupied(seats)
+	}
+}
+
+func applyChanges(seats [][]string, countFunc func([][]string, int, int) int, c int) ([][]string, bool) {
 	var changed bool
-	counts := countOccupiedSeats(seats)
+	counts := countOccupiedSeats(seats, countFunc)
 	for i, l := range seats {
 		for j, x := range l {
 			if x == "L" && counts[i][j] == 0 {
 				seats[i][j] = "#"
 				changed = true
-			} else if x == "#" && counts[i][j] >= 5 { // 4 {
+			} else if x == "#" && counts[i][j] >= c {
 				seats[i][j] = "L"
 				changed = true
 			}
@@ -39,11 +43,11 @@ func applyChanges(seats [][]string) ([][]string, bool) {
 	return seats, changed
 }
 
-func countOccupiedSeats(seats [][]string) (out [][]int) {
+func countOccupiedSeats(seats [][]string, countFunc func([][]string, int, int) int) (out [][]int) {
 	for i, l := range seats {
 		o := make([]int, 0, len(l))
 		for j := range l {
-			o = append(o, countOccupiedAround2(seats, i, j))
+			o = append(o, countFunc(seats, i, j))
 		}
 		out = append(out, o)
 	}
