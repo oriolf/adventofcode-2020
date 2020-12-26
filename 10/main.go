@@ -1,33 +1,28 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
+	"github.com/oriolf/adventofcode2020/util"
 	"sort"
-	"strconv"
 )
 
 func main() {
-	numbers := []int{0}
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		x, err := strconv.Atoi(scanner.Text())
-		if err != nil {
-			panic("not a number")
-		}
-		numbers = append(numbers, x)
-	}
+	util.Solve(solve1, solve2)
+}
 
+func solve1(lines []string) interface{} {
+	numbers := append([]int{0}, util.ParseInts(lines)...)
 	sort.Ints(numbers)
-	//	ones, threes := countOnesThrees(numbers)
-	//	fmt.Println(ones, threes, ones*threes)
+	ones, threes := countOnesThrees(numbers)
+	return ones * threes
+}
 
+func solve2(lines []string) interface{} {
+	numbers := append([]int{0}, util.ParseInts(lines)...)
+	sort.Ints(numbers)
 	differences := computeDifferences(numbers)
 	mult := 1
 	for {
 		consecutiveOnes, nextIndex := countConsecutiveOnes(differences)
-		//		fmt.Println(differences, consecutiveOnes, nextIndex)
 		switch consecutiveOnes {
 		case 1:
 		case 2:
@@ -37,7 +32,7 @@ func main() {
 		case 4:
 			mult *= 7
 		default:
-			panic(fmt.Sprintf("unexpected consecutive ones %d", consecutiveOnes))
+			panic("unexpected consecutive ones")
 		}
 		if nextIndex >= len(differences) {
 			break
@@ -45,7 +40,7 @@ func main() {
 		differences = differences[nextIndex:]
 	}
 
-	fmt.Println(mult)
+	return mult
 }
 
 func computeDifferences(in []int) (out []int) {
