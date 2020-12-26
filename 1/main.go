@@ -10,29 +10,17 @@ func main() {
 
 func solve1(lines []string) interface{} {
 	numbers := util.ParseInts(lines)
-	x, y := sumPair(numbers, 2020)
+	x, y := util.SumPair(numbers, 2020)
 	return x * y
 }
 
 func solve2(lines []string) interface{} {
 	numbers := util.ParseInts(lines)
 	for i, n := range numbers[1:] {
-		x, y := sumPair(numbers[:i], 2020-n)
+		x, y := util.SumPair(numbers[:i], 2020-n)
 		if x+y == 2020-n {
 			return x * y * n
 		}
 	}
 	return 0
-}
-
-func sumPair(numbers []int, target int) (int, int) {
-	seen := map[int]struct{}{}
-	for _, n := range numbers {
-		if _, ok := seen[target-n]; ok {
-			return n, target - n
-		} else {
-			seen[n] = struct{}{}
-		}
-	}
-	return 0, 0
 }

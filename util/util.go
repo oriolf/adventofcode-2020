@@ -57,6 +57,21 @@ func Max(x, y int) int {
 	return y
 }
 
+func ListMin(l []int) (m int) {
+	m = l[0]
+	for _, x := range l {
+		m = Min(m, x)
+	}
+	return m
+}
+
+func ListMax(l []int) (m int) {
+	for _, x := range l {
+		m = Max(m, x)
+	}
+	return m
+}
+
 func Abs(x int) int {
 	if x < 0 {
 		return -x
@@ -154,4 +169,16 @@ func GenerateIntMatrix(x, y int) (out [][]int) {
 		out = append(out, r)
 	}
 	return out
+}
+
+func SumPair(numbers []int, target int) (int, int) {
+	seen := map[int]struct{}{}
+	for _, n := range numbers {
+		if _, ok := seen[target-n]; ok {
+			return n, target - n
+		} else {
+			seen[n] = struct{}{}
+		}
+	}
+	return 0, 0
 }

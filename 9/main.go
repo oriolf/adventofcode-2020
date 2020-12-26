@@ -1,56 +1,39 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
+	"github.com/oriolf/adventofcode2020/util"
 )
 
-const preamble = 25
-
-//const target = 127
-const target = 675280050
-
 func main() {
-	var numbers []int
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		x, err := strconv.Atoi(scanner.Text())
-		if err != nil {
-			panic("not a number")
-		}
-		numbers = append(numbers, x)
+	util.Solve(solve1, solve2)
+}
+
+func solve1(lines []string) interface{} {
+	var preamble = 25
+	if len(lines) < preamble {
+		preamble = 5
 	}
+	const target = 127
+	numbers := util.ParseInts(lines)
+	for i := preamble; i < len(numbers); i++ {
+		x, y := util.SumPair(numbers[i-preamble:i], numbers[i])
+		if x == 0 && y == 0 {
+			return numbers[i]
+		}
+	}
+	return ""
+}
 
-	// first part
-	//	for i := preamble; i < len(numbers); i++ {
-	//		x, y := sumPair(numbers[i-preamble:i], numbers[i])
-	//		if x == 0 && y == 0 {
-	//			fmt.Println(numbers[i])
-	//			os.Exit(0)
-	//		}
-	//	}
-
+func solve2(lines []string) interface{} {
+	const target = 675280050
+	numbers := util.ParseInts(lines)
 	for i := 0; i < len(numbers); i++ {
 		slice, ok := findSliceSum(numbers[i:], target)
 		if ok {
-			fmt.Println(min(slice) + max(slice))
-			os.Exit(0)
+			return util.ListMin(slice) + util.ListMax(slice)
 		}
 	}
-}
-
-func sumPair(numbers []int, target int) (int, int) {
-	seen := map[int]struct{}{}
-	for _, n := range numbers {
-		if _, ok := seen[target-n]; ok {
-			return n, target - n
-		} else {
-			seen[n] = struct{}{}
-		}
-	}
-	return 0, 0
+	return ""
 }
 
 func findSliceSum(numbers []int, target int) (out []int, ok bool) {
@@ -66,23 +49,4 @@ func findSliceSum(numbers []int, target int) (out []int, ok bool) {
 	}
 
 	return nil, false
-}
-
-func min(l []int) (m int) {
-	m = l[0]
-	for _, x := range l {
-		if x < m {
-			m = x
-		}
-	}
-	return m
-}
-
-func max(l []int) (m int) {
-	for _, x := range l {
-		if x > m {
-			m = x
-		}
-	}
-	return m
 }
